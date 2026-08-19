@@ -146,12 +146,12 @@ class LibelulaPaymentService
         } else {
             $payload['lineas_detalle_deuda'] = [
                 [
-                    'concepto' => $description,
+                    'concepto' => $this->resolveProductInfo('RECHARGE')['name'] ?? $description,
                     'cantidad' => (int) 1,
                     'costo_unitario' => $amount,
                     'descuento_unitario' => $discount,
-                    'detalle' => $description,
-                    'codigo_producto' => $this->resolveProductCode('RECHARGE'),
+                    'detalle' => $this->resolveProductInfo('RECHARGE')['description'] ?: $description,
+                    'codigo_producto' => $this->resolveProductInfo('RECHARGE')['code'],
                 ],
             ];
         }
@@ -201,7 +201,7 @@ class LibelulaPaymentService
 
                 return [
                     'success' => false,
-                    'message' => 'Libélula rechazó la creación de pago',
+                    'message' => 'LibÃ©lula rechazÃ³ la creaciÃ³n de pago',
                     'detail' => $msg,
                 ];
             }
@@ -278,7 +278,7 @@ class LibelulaPaymentService
 
             return [
                 'success' => false,
-                'message' => 'Error inesperado al procesar respuesta de Libélula',
+                'message' => 'Error inesperado al procesar respuesta de LibÃ©lula',
             ];
         } catch (\Throwable $e) {
             if ($txId) {
@@ -288,7 +288,7 @@ class LibelulaPaymentService
 
             return [
                 'success' => false,
-                'message' => 'Error de conexión con Libélula',
+                'message' => 'Error de conexiÃ³n con LibÃ©lula',
                 'detail' => $e->getMessage(),
             ];
         }
@@ -587,7 +587,7 @@ class LibelulaPaymentService
     public function createManualInvoice(WalletTransaction $tx, float $amount, string $description, ?array $lineItems = null, float $discount = 0): array
     {
         if (!$this->isConfigured()) {
-            return ['success' => false, 'message' => 'Libélula no configurada'];
+            return ['success' => false, 'message' => 'LibÃ©lula no configurada'];
         }
 
         $settings = \App\Models\SystemSetting::get();
@@ -638,10 +638,11 @@ class LibelulaPaymentService
                 ];
             }, $lineItems) : [
                 [
-                    'concepto' => $description,
+                    'concepto' => $this->resolveProductInfo('RECHARGE')['name'] ?? $description,
                     'cantidad' => (int) 1,
                     'costo_unitario' => (float) $amount,
-                    'codigo_producto' => $this->resolveProductCode('RECHARGE'),
+                    'codigo_producto' => $this->resolveProductInfo('RECHARGE')['code'],
+                    'detalle' => $this->resolveProductInfo('RECHARGE')['description'] ?: $description,
                     'descuento_unitario' => 0,
                     'ignora_factura' => false
                 ]
@@ -696,14 +697,14 @@ class LibelulaPaymentService
             ];
         } catch (\Throwable $e) {
             Log::error('Libelula Manual Invoice Exception', ['error' => $e->getMessage()]);
-            return ['success' => false, 'message' => 'Error de conexión: ' . $e->getMessage()];
+            return ['success' => false, 'message' => 'Error de conexiÃ³n: ' . $e->getMessage()];
         }
     }
 
     public function testInvoiceRequest(array $payloadData): array
     {
         if (!$this->isConfigured()) {
-            return ['error' => 'Libélula API Key no configurada'];
+            return ['error' => 'LibÃ©lula API Key no configurada'];
         }
 
         $settings = \App\Models\SystemSetting::get();
@@ -737,7 +738,7 @@ class LibelulaPaymentService
 
             'lineas_detalle_deuda' => [
                 [
-                    'concepto' => $payloadData['concepto'] ?? 'Ítem de prueba',
+                    'concepto' => $payloadData['concepto'] ?? 'Ãtem de prueba',
                     'cantidad' => (int) 1,
                     'costo_unitario' => round((float) ($payloadData['monto'] ?? 0), 2),
                     'descuento_unitario' => round((float) ($payloadData['descuento'] ?? 0), 2),
@@ -852,3 +853,4 @@ class LibelulaPaymentService
         DB::table('wallet_transactions')->where('id', $txId)->update($update);
     }
 }
+
