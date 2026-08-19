@@ -343,33 +343,31 @@ class BillingService
 
     private function getSecondsOverlap(Carbon $start, Carbon $stop, string $blockStart, string $blockEnd): int
     {
-        // This handles sessions spanning multiple days by iterating through each day
-        // Convert to local time because tariff blocks are defined in local time
         $startLocal = $start->copy()->setTimezone('America/La_Paz');
         $stopLocal = $stop->copy()->setTimezone('America/La_Paz');
-        $current = $startLocal->copy();
         $totalOverlap = 0;
 
-        while ($current->lt($stopLocal)) {
-            $dayStart = $current->copy()->startOfDay();
-            $bStart = Carbon::parse($current->format('Y-m-d ') . $blockStart, 'America/La_Paz');
-            $bEnd = Carbon::parse($current->format('Y-m-d ') . $blockEnd, 'America/La_Paz');
+        // Generate blocks for yesterday, today, and tomorrow to safely catch midnight wrap-arounds
+        // and sessions that span across multiple days.
+        $daysOffsets = [-1, 0, 1, 2]; // Up to 2 days ahead in case of long sessions
+        
+        foreach ($daysOffsets as $offset) {
+            $baseDate = $startLocal->copy()->addDays($offset);
+            
+            $bStart = Carbon::parse($baseDate->format('Y-m-d ') . $blockStart, 'America/La_Paz');
+            $bEnd = Carbon::parse($baseDate->format('Y-m-d ') . $blockEnd, 'America/La_Paz');
 
-            // Handle blocks that wrap around midnight (if any, though usually SteVe uses 00-24)
+            // Handle blocks that wrap around midnight (e.g. 23:00 to 07:00)
             if ($bEnd->lt($bStart)) {
                 $bEnd->addDay();
             }
 
-            $overlapStart = $current->max($bStart);
-            $overlapEnd = $stopLocal->min($bEnd);
+            $overlapStart = $startLocal->copy()->max($bStart);
+            $overlapEnd = $stopLocal->copy()->min($bEnd);
 
             if ($overlapStart->lt($overlapEnd)) {
                 $totalOverlap += $overlapStart->diffInSeconds($overlapEnd);
             }
-
-            // Move to next block or next day
-            $current = $bEnd->gt($current) ? $bEnd : $current->addDay()->startOfDay();
-            if ($current->gt($stopLocal)) break;
         }
 
         return $totalOverlap;
