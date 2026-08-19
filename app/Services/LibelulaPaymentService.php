@@ -781,9 +781,12 @@ class LibelulaPaymentService
         }
     }
 
-    private function resolveProductCode(?string $internalCode = 'RECHARGE'): string
+    private function resolveProductInfo(?string $internalCode = 'RECHARGE'): array
     {
         $settings = \App\Models\SystemSetting::get();
+        $code = $settings->libelula_product_code ?: '1';
+        $name = null;
+        $desc = null;
         
         try {
             $mappedProductId = null;
@@ -799,25 +802,33 @@ class LibelulaPaymentService
 
             if ($mappedProductId) {
                 $product = \App\Models\Product::find($mappedProductId);
-                if ($product && $product->siat_product_code) {
-                    return $product->siat_product_code;
+                if ($product) {
+                    $name = $product->name;
+                    $desc = $product->description;
+                    if ($product->siat_product_code) {
+                        $code = $product->siat_product_code;
+                    }
                 }
             }
 
-            if (Schema::hasTable('products')) {
+            if (!$mappedProductId && \Illuminate\Support\Facades\Schema::hasTable('products')) {
                 $product = \App\Models\Product::where('internal_code', $internalCode)
                     ->orWhere('name', 'LIKE', "%{$internalCode}%")
                     ->first();
                 
-                if ($product && $product->siat_product_code) {
-                    return $product->siat_product_code;
+                if ($product) {
+                    $name = $product->name;
+                    $desc = $product->description;
+                    if ($product->siat_product_code) {
+                        $code = $product->siat_product_code;
+                    }
                 }
             }
         } catch (\Throwable $e) {
-            Log::warning("Error resolving product code for {$internalCode}: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning("Error resolving product code for {$internalCode}: " . $e->getMessage());
         }
 
-        return $settings->libelula_product_code ?: '1';
+        return ['code' => $code, 'name' => $name, 'description' => $desc];
     }
 
     private function resolveDocType(?string $doc): string

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Services;
 
@@ -676,7 +676,7 @@ class BillingService
             // 1. Energy Components (Breakdown by Blocks)
             $energyProduct = Product::find($settings->product_energy_id) 
                 ?? Product::where('internal_code', 'ENERGY-SVC')->first();
-            $energyName = $energyProduct?->name ?? 'Consumo de Energía';
+            $energyName = $energyProduct?->name ?? 'Consumo de EnergÃ­a';
 
             $breakdown = $session->applied_tariff_snapshot['billing_breakdown'] ?? [];
             
@@ -721,11 +721,11 @@ class BillingService
                     ?? Product::where('internal_code', 'CONN-FEE')->first();
 
                 $lineItems[] = [
-                    'concepto' => $connProduct?->name ?? "Cargo por Conexión / Inicio de Sesión (Tarifa Plana)",
+                    'concepto' => $connProduct?->name ?? "Cargo por ConexiÃ³n / Inicio de SesiÃ³n (Tarifa Plana)",
                     'cantidad' => 1,
                     'costo_unitario' => round($session->session_fee, 2),
                     'descuento_unitario' => 0,
-                    'detalle' => "Servicio de Conexión",
+                    'detalle' => "Servicio de ConexiÃ³n",
                     'codigo_producto' => $connProduct?->siat_product_code ?? '5',
                 ];
             }
@@ -741,7 +741,7 @@ class BillingService
                     'cantidad' => 1,
                     'costo_unitario' => round($session->time_fee, 2),
                     'descuento_unitario' => 0,
-                    'detalle' => "Penalty fee por ocupación excesiva",
+                    'detalle' => "Penalty fee por ocupaciÃ³n excesiva",
                     'codigo_producto' => $timeProduct?->siat_product_code ?? '1',
                 ];
             }
@@ -753,7 +753,7 @@ class BillingService
                     'cantidad' => 1,
                     'costo_unitario' => max(0.01, round($session->total_cost, 2)),
                     'descuento_unitario' => 0,
-                    'detalle' => "Consumo de Energía",
+                    'detalle' => "Consumo de EnergÃ­a",
                     'codigo_producto' => '1',
                 ];
             }
@@ -771,7 +771,7 @@ class BillingService
             // Ensure subtotal is not zero for Libelula
             $amountToSend = max(0.01, round($subtotal, 2));
 
-                $libResponse = $libService->createPayment($wallet, $amountToSend, "Consumo Energía #{$session->transaction_id}", [
+                $libResponse = $libService->createPayment($wallet, $amountToSend, "Consumo EnergÃ­a #{$session->transaction_id}", [
                     'transaction_id' => $walletTx?->id,
                     'emite_factura' => true,
                     'internal_usage_tx' => true,
@@ -784,7 +784,7 @@ class BillingService
                     'complemento' => $session->user->billing_complement,
                 ], true, $discount);
 
-                Log::info("Libélula response for Session #{$session->id}", ['success' => $libResponse['success'] ?? false, 'url' => $libResponse['payment_url'] ?? null]);
+                Log::info("LibÃ©lula response for Session #{$session->id}", ['success' => $libResponse['success'] ?? false, 'url' => $libResponse['payment_url'] ?? null]);
                 
                 $urlToSave = $libResponse['invoice_url'] ?? $libResponse['payment_url'];
                 
@@ -835,3 +835,4 @@ class BillingService
         return implode(" | ", $parts);
     }
 }
+

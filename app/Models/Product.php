@@ -11,6 +11,7 @@ class Product extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'siat_product_code',
         'internal_code',
         'price',

@@ -1,0 +1,43 @@
+use Illuminate\Support\Facades\Schedule;
+
+Artisan::command('inspire', function () {
+    $this->comment(Illuminate\Foundation\Inspiring::quote());
+})->purpose('Display an inspiring quote');
+Array
+(
+    [id] => 1
+    [name] => Electro Point - Test Tariff Pro
+    [currency] => USD
+    [cost_price_kwh] => 0.0000
+    [price_session] => 1.0000
+    [is_parking_fee_enabled] => 1
+    [apply_fee_to_cards] => 
+    [apply_fee_to_app] => 1
+    [free_minutes] => 10
+    [valid_from] => 2026-03-01T00:00:00.000000Z
+    [valid_until] => 2026-12-31T23:59:59.000000Z
+    [created_at] => 2026-02-23T05:17:17.000000Z
+    [updated_at] => 2026-05-03T22:59:15.000000Z
+    [b1_start] => 00:00:00
+    [b1_end] => 23:59:59
+    [b1_price_kwh] => 0.3500
+    [b1_cost_kwh] => 0.1800
+    [b1_price_min] => 0.0200
+    [is_time_fee_enabled] => 1
+    [discount_percentage] => 0.00
+    [b2_start] => 07:00:00
+    [b2_end] => 18:59:59
+    [b2_price_kwh] => 1.1000
+    [b2_cost_kwh] => 0.8000
+    [b2_price_min] => 4.0000
+    [b3_start] => 19:00:00
+    [b3_end] => 22:59:59
+    [b3_price_kwh] => 1.5000
+    [b3_cost_kwh] => 1.2000
+    [b3_price_min] => 5.0000
+    [b4_start] => 23:00:00
+    [b4_end] => 23:59:59
+    [b4_price_kwh] => 1.1000
+    [b4_cost_kwh] => 0.8000
+    [b4_price_min] => 4.0000
+)

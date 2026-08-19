@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  steve-cms-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.cms
+    container_name: steve-cms-app
+    restart: unless-stopped
+    depends_on:
+      - steve-cms-redis
+    env_file: .env
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: /bin/bash -c "php artisan serve --host=0.0.0.0 --port=8000"
+    networks:
+      - steve-cms_default
+      - steve-java_default
+
+  steve-cms-listener:
+    build:
+      context: .
+      dockerfile: Dockerfile.cms
+    container_name: steve-cms-listener
+    restart: unless-stopped
+    depends_on:
+      - steve-cms-redis
+      - steve-cms-app
+    env_file: .env
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: php artisan steve:listen
+    networks:
+      - steve-cms_default
+      - steve-java_default
+
+  steve-monitor-daemon:
+    build:
+      context: .
+      dockerfile: Dockerfile.cms
+    container_name: steve-monitor-daemon
+    restart: unless-stopped
+    depends_on:
+      - steve-cms-redis
+      - steve-cms-app
+    env_file: .env
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: php artisan steve:monitor-transactions --daemon
+    networks:
+      - steve-cms_default
+      - steve-java_default
+
+  steve-cms-redis:
+    image: redis:alpine
+    container_name: steve-cms-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - steve-cms_default
+
+  steve-cms-nginx:
+    image: nginx:alpine
+    container_name: steve-cms-nginx
+    restart: unless-stopped
+    depends_on:
+      - steve-cms-app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - steve-cms_default
+
+  steve-observer:
+    image: steve-observer-base
+    container_name: steve-observer
+    restart: unless-stopped
+    volumes:
+      - /home/Usuario/steve-observer:/app
+    working_dir: /app
+    env_file: /home/Usuario/steve-observer/.env
+    command: python3 observer_v2.py binlog
+    networks:
+      - steve-cms_default
+      - steve-java_default
+
+networks:
+  steve-cms_default:
+    name: steve-cms_default
+  steve-java_default:
+    external: true
+
+volumes:
+  redis-data:

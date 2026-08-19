@@ -33,6 +33,10 @@ class ProductResource extends Resource
                             ->label('Nombre del Producto')
                             ->required()
                             ->maxLength(255),
+                        Forms\Components\Textarea::make('description')
+                            ->label('Descripción para Factura (Detalle)')
+                            ->maxLength(65535)
+                            ->columnSpanFull(),
                         Forms\Components\TextInput::make('siat_product_code')
                             ->label('Código SIN / SIAT')
                             ->required()
