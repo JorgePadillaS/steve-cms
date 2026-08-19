@@ -107,6 +107,7 @@ class LibelulaPaymentService
             'appkey' => $apiKey,
             'email_cliente' => $user->email,
             'nombre_cliente' => $user->name,
+            'codigo_pais' => 22,
             'apellido_cliente' => '',
             'ci' => ($invoiceData['documento'] ?? $user->billing_document) ?: '',
             'razon_social' => ($invoiceData['razon_social'] ?? $user->billing_razon_social) ?: $user->name,
@@ -120,7 +121,7 @@ class LibelulaPaymentService
             'moneda' => $wallet->currency ?? 'BOB',
             'monto' => number_format((float)$amount, 2, '.', ''),
             'descuento_global' => number_format((float)$discount, 2, '.', ''),
-            'codigo_documento_sector' => $settings->libelula_sector_code ?? '31',
+            'codigo_documento_sector' => (int) ($settings->libelula_sector_code ?? 31),
             'emite_factura' => $canInvoice,
             'lineas_metadatos' => [
                 [
@@ -604,6 +605,7 @@ class LibelulaPaymentService
             'emite_factura' => 1,
             'email_cliente' => $user->email,
             'nombre_cliente' => $user->name,
+            'codigo_pais' => 22,
             'apellido_cliente' => '',
             'razon_social' => $tx->metadata['razon_social'] ?? $user->billing_razon_social ?? $user->name,
             'numero_documento' => $tx->metadata['documento'] ?? $user->billing_document ?? '0',
@@ -615,7 +617,7 @@ class LibelulaPaymentService
             'canal_caja_sucursal' => $settings->libelula_canal_caja_sucursal ?: 'SUCURSAL 1',
             'canal_caja_usuario' => $settings->libelula_canal_caja_usuario ?: 'CAJERO 1',
             'descripcion' => "Factura emitida manualmente",
-            'codigo_documento_sector' => $settings->libelula_sector_code ?? '31',
+            'codigo_documento_sector' => (int) ($settings->libelula_sector_code ?? 31),
             'lineas_metadatos' => [
                 [
                     'nombre' => 'placa Vehiculo',
@@ -712,6 +714,7 @@ class LibelulaPaymentService
             'emite_factura' => 1,
             'email_cliente' => $payloadData['email_cliente'] ?? 'test@example.com',
             'nombre_cliente' => $payloadData['nombre_cliente'] ?? 'Test User',
+            'codigo_pais' => 22,
             'apellido_cliente' => '',
             'razon_social' => $payloadData['razon_social'] ?? 'Test User',
             'numero_documento' => $payloadData['numero_documento'] ?? '1234567',
@@ -723,7 +726,7 @@ class LibelulaPaymentService
             'canal_caja_sucursal' => $settings->libelula_canal_caja_sucursal ?: 'SUCURSAL 1',
             'canal_caja_usuario' => $settings->libelula_canal_caja_usuario ?: 'CAJERO 1',
             'descripcion' => $payloadData['concepto'] ?? "Prueba desde Debugger",
-            'codigo_documento_sector' => $settings->libelula_sector_code ?? '31',
+            'codigo_documento_sector' => (int) ($settings->libelula_sector_code ?? 31),
             'lineas_metadatos' => [
                 [
                     'nombre' => 'placa Vehiculo',
